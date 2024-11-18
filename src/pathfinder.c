@@ -8,21 +8,24 @@ int return_island_num(const int fd) {
         mx_strdel(&str_num);
         return is_empty;
     }
+    if (!is_empty) {
+        mx_strdel(&str_num);
+        mx_printerr("error: line 1 is not valid\n");
+        exit(-1);
+    }
+
     for (int i = 0; str_num[i] != '\0'; i++) {
         if (str_num[i] < '0' || str_num[i] > '9') {
-        	close(fd);
             mx_strdel(&str_num);
             mx_printerr("error: line 1 is not valid\n");
             exit(-1);
         }
     }
-
     const int island_num = mx_atoi(str_num);
 
     mx_strdel(&str_num);
     return island_num;
 }
-
 
 void pathfinder(const char *filename) {
     const int fd = open(filename, O_RDONLY);
@@ -45,7 +48,6 @@ void pathfinder(const char *filename) {
     int **graph = graph_init(island_num);
     char **names = malloc(sizeof(char *) * island_num);
 
-
     graph_fill(fd, graph, names, island_num);
     close(fd);
     bool **visited = malloc(sizeof(bool *) * island_num);
@@ -61,16 +63,21 @@ void pathfinder(const char *filename) {
         t_path *current_path = deikstra(island_num, graph, i, &path_count);
         bubble_sort_paths(current_path, path_count);
         for (int k = i; k < path_count; k++) {
-            int src = i;
+            int src = current_path[k].start;
             int dest = current_path[k].goal;
 
-            if (visited[src][dest] || visited[dest][src]) {
-                if (!k) continue;
-                if (current_path[k - 1].goal != dest || current_path[k - 1].start != src) continue;
+            if (visited[src][dest] && visited[dest][src]) continue;
+            if (k + 1 > path_count) {
+                visited[src][dest] = true;
+                visited[dest][src] = true;
+                break;
             }
-            visited[src][dest] = true;
-            visited[dest][src] = true;
+            if (current_path[k + 1].start != src || current_path[k + 1].goal != dest) {
+                visited[src][dest] = true;
+            }
 
+            visited[dest][src] = true;
+            
             print_path_block(graph, names, current_path[k].route, current_path[k].goal);
         }
 
@@ -85,4 +92,5 @@ void pathfinder(const char *filename) {
     }
     free(visited);
 }
+
 

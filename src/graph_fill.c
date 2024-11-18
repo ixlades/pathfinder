@@ -44,6 +44,18 @@ void graph_fill(const int fd, int **graph, char **names, const int size) {
             break;
         }
         count_lines++;
+        if (!stop) {
+            mx_strdel(&island1);
+            free_connections(connections, size);
+            free_core_memory(graph, names, size);
+            close(fd);
+            mx_printerr("error: line ");
+            char *str_count_lines = mx_itoa(count_lines);
+            mx_printerr(str_count_lines);
+            mx_strdel(&str_count_lines);
+            mx_printerr(" is not valid\n");
+            exit(-1);
+        }
         for(int i = 0; island1[i] != '\0'; i++) {
             if (!mx_isalpha(island1[i])) {
                 mx_strdel(&island1);
@@ -58,7 +70,20 @@ void graph_fill(const int fd, int **graph, char **names, const int size) {
                 exit(-1);
             }
         }
-        mx_read_line(&island2, 1, ',', fd);
+        stop = mx_read_line(&island2, 1, ',', fd);
+        if (!stop) {
+            mx_strdel(&island1);
+            mx_strdel(&island2);
+            free_connections(connections, size);
+            free_core_memory(graph, names, size);
+            close(fd);
+            mx_printerr("error: line ");
+            char *str_count_lines = mx_itoa(count_lines);
+            mx_printerr(str_count_lines);
+            mx_strdel(&str_count_lines);
+            mx_printerr(" is not valid\n");
+            exit(-1);
+        }
         for(int i = 0; island2[i] != '\0'; i++) {
             if (!mx_isalpha(island2[i])) {
                 mx_strdel(&island1);
@@ -78,6 +103,7 @@ void graph_fill(const int fd, int **graph, char **names, const int size) {
         if (mx_strcmp(island1, island2) == 0) {
             mx_strdel(&island1);
             mx_strdel(&island2);
+            free_connections(connections, size);
             free_core_memory(graph, names, size);
             close(fd);
             mx_printerr("error: line ");
@@ -87,7 +113,21 @@ void graph_fill(const int fd, int **graph, char **names, const int size) {
             mx_printerr(" is not valid\n");
             exit(-1);
         }
-        mx_read_line(&chr_num, 1, '\n', fd);
+        stop = mx_read_line(&chr_num, 1, '\n', fd);
+        if (!stop) {
+            mx_strdel(&island1);
+            mx_strdel(&island2);
+            mx_strdel(&chr_num);
+            free_connections(connections, size);
+            free_core_memory(graph, names, size);
+            close(fd);
+            mx_printerr("error: line ");
+            char *str_count_lines = mx_itoa(count_lines);
+            mx_printerr(str_count_lines);
+            mx_strdel(&str_count_lines);
+            mx_printerr(" is not valid\n");
+            exit(-1);
+        }
         for (int i = 0; chr_num[i] != '\0'; i++) {
             if (chr_num[i] < '0' || chr_num[i] > '9') {
                 mx_strdel(&island1);
@@ -143,8 +183,7 @@ void graph_fill(const int fd, int **graph, char **names, const int size) {
         graph[idx1][idx2] = length;
         graph[idx2][idx1] = length;
     }
-	free_connections(connections, size);
-	
-
+    free_connections(connections, size);
 }
+
 

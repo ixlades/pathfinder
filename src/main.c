@@ -3,7 +3,7 @@
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
-        mx_printerr("Usage: ./pathfinder [path]\n");
+        mx_printerr("Usage: ./pathfinder [filename]\n");
         exit(-1);
     }
     char *filename = argv[1];
